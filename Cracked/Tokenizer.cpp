@@ -1,6 +1,7 @@
 #include "provided.h"
 #include <string>
 #include <vector>
+#include <unordered_set>
 using namespace std;
 
 class TokenizerImpl
@@ -9,15 +10,35 @@ public:
     TokenizerImpl(string separators);
     vector<string> tokenize(const std::string& s) const;
 private:
+    unordered_set<char> m_separators; //unordered set is O(1) for insertions and searching
 };
 
 TokenizerImpl::TokenizerImpl(string separators)
 {
+    for (int i = 0; i < separators.length(); i++) {
+        m_separators.insert(separators[i]); //convert each character in the string to a string
+    }
 }
 
 vector<string> TokenizerImpl::tokenize(const std::string& s) const
 {
-    return vector<string>();  // This compiles, but may not be correct
+    vector<string> tokenized;
+    string currentString = "";
+    for (int i = 0; i < s.length(); i++) {
+        if (m_separators.find(s[i]) != m_separators.end()) {
+            if (!currentString.empty()) {
+                tokenized.push_back(currentString);
+            }
+            currentString = "";
+        }
+        else{
+            currentString += s[i];
+        }
+    }
+    if (!currentString.empty()){
+        tokenized.push_back(currentString);
+    }
+    return tokenized;
 }
 
 //******************** Tokenizer functions ************************************
